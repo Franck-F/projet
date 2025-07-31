@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Avatar } from "../../components/ui/avatar";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs";
-import { Moon, Sun, Upload, Download, FileText, Database } from "lucide-react";
+import axios from 'axios';
 import logo from "../../assets/logo.jpg";
+import { Database, FileText, Menu, Moon, Sun, Upload, Download, X } from 'lucide-react';
+import { useDropzone } from 'react-dropzone';
+import clsx from 'clsx'; // Import clsx
 
 declare module "*.jpg" {
   const value: string;
@@ -13,9 +16,86 @@ declare module "*.jpg" {
 
 export const StitchDesign = (): JSX.Element => {
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const [extractionFiles, setExtractionFiles] = useState([]);
+  const [generationFiles, setGenerationFiles] = useState([]);
+  const [presentationFiles, setPresentationFiles] = useState([]);
+  const [processingState, setProcessingState] = useState({
+    extraction: { isProcessing: false, result: null, error: null },
+    generation: { isProcessing: false, result: null, error: null },
+    presentation: { isProcessing: false, result: null, error: null },
+  });
+
+  const onDropExtraction = useCallback(acceptedFiles => {
+    setExtractionFiles(acceptedFiles);
+  }, []);
+
+  const onDropGeneration = useCallback(acceptedFiles => {
+    setGenerationFiles(acceptedFiles);
+  }, []);
+
+  const onDropPresentation = useCallback(acceptedFiles => {
+    setPresentationFiles(acceptedFiles);
+  }, []);
+
+  const { getRootProps: getExtractionRootProps, getInputProps: getExtractionInputProps, isDragActive: isExtractionDragActive } = useDropzone({ onDrop: onDropExtraction });
+  const { getRootProps: getGenerationRootProps, getInputProps: getGenerationInputProps, isDragActive: isGenerationDragActive } = useDropzone({ onDrop: onDropGeneration });
+  const { getRootProps: getPresentationRootProps, getInputProps: getPresentationInputProps, isDragActive: isPresentationDragActive } = useDropzone({ onDrop: onDropPresentation });
+
+  const handleProcess = async (tab) => {
+    let files, setFiles, webhookUrl;
+
+    switch (tab) {
+      case 'extraction':
+        files = extractionFiles;
+        setFiles = setExtractionFiles;
+        webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook-test/d7a23733-4bd3-43a3-95f8-76cdcc889e72";
+        break;
+      case 'generation':
+        files = generationFiles;
+        setFiles = setGenerationFiles;
+        webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook-test/d7a23733-4bd3-43a3-95f8-76cdcc889e72"; // Remplacez par le bon webhook
+        break;
+      case 'presentation':
+        files = presentationFiles;
+        setFiles = setPresentationFiles;
+        webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook-test/d7a23733-4bd3-43a3-95f8-76cdcc889e72"; // Remplacez par le bon webhook
+        break;
+      default:
+        return;
+    }
+
+    if (files.length === 0) {
+      setProcessingState(prev => ({ ...prev, [tab]: { ...prev[tab], error: "Veuillez téléverser un fichier." } }));
+      return;
+    }
+
+    setProcessingState(prev => ({ ...prev, [tab]: { isProcessing: true, error: null, result: null } }));
+
+    const formData = new FormData();
+    formData.append("file", files[0]);
+
+    try {
+      const response = await axios.post(webhookUrl, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      // Extract the URL from the response data
+      const downloadUrl = response.data.Url;
+      setProcessingState(prev => ({ ...prev, [tab]: { isProcessing: false, result: downloadUrl, error: null } }));
+    } catch (error) {
+      setProcessingState(prev => ({ ...prev, [tab]: { isProcessing: false, result: null, error: "Une erreur est survenue." } }));
+    } 
+  };
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
   // Navigation menu items data
@@ -28,6 +108,12 @@ export const StitchDesign = (): JSX.Element => {
       icon: <FileText className="w-6 h-6" />,
       label: "Générer",
     },
+  ];
+
+  const tabItems = [
+    { value: 'extraction', label: 'Extraction de Données' },
+    { value: 'generation', label: 'Génération de Rapport' },
+    { value: 'presentation', label: 'Génération de présentation' }
   ];
 
   const themeClasses = isDarkMode 
@@ -43,419 +129,217 @@ export const StitchDesign = (): JSX.Element => {
     : "bg-[#f9f9f9]";
 
   return (
-    <div className={`flex flex-col items-center justify-center relative min-h-screen transition-colors duration-300 ${themeClasses}`}>
-      <div className="flex flex-col min-h-[800px] items-start relative self-stretch w-full flex-[0_0_auto]">
-        <div className="flex flex-col items-start relative self-stretch w-full flex-[0_0_auto]">
-          <div className="flex items-start justify-center gap-1 px-6 py-5 relative flex-1 self-stretch w-full grow">
-            {/* Sidebar */}
-            <aside className={`w-96 relative h-[760px] transition-colors duration-300 ${sidebarThemeClasses}`}>
-              {/* Profile section */}
-              <div className="flex w-96 h-[228px] items-center justify-center p-4 absolute top-0 left-0">
-                <div className="flex flex-col items-center gap-4 relative flex-1 grow">
-                  <div className="inline-flex flex-col items-center gap-4 relative flex-1 grow">
-                    <Avatar className="relative w-32 h-32 rounded-[64px]">
-                      <img
-                        src={logo}
-                        alt="logo"
-                        className="h-full w-full object-cover"
-                      />
-                    </Avatar>
+    <div className={`flex h-screen overflow-hidden ${themeClasses}`}>
+      {/* Overlay for mobile --- Clicking it will close the sidebar */}
+      {isSidebarOpen && (
+        <div
+          onClick={toggleSidebar}
+          className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
+          aria-hidden="true"
+        ></div>
+      )}
 
-                    <div className="inline-flex flex-col items-center justify-center relative flex-[0_0_auto]">
-                      <div className="inline-flex flex-col items-start relative flex-[0_0_auto]">
-                        <h2 className={`relative self-stretch mt-[-1.00px] font-bold text-[22px] tracking-[0] leading-7 whitespace-nowrap transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-[#111616]'}`}>
-                          JEAN RAPHAËL BERT
-                        </h2>
-                      </div>
-
-                      <div className="flex flex-col w-[271px] items-center relative flex-[0_0_auto]">
-                        <p className={`relative self-stretch mt-[-1.00px] font-normal text-base tracking-[0] leading-6 transition-colors duration-300 ${isDarkMode ? 'text-gray-300' : 'text-[#5b8984]'}`}>
-                          CONSULTANT
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Navigation menu */}
-              {navItems.map((item, index) => (
-                <div
-                  key={`nav-item-${index}`}
-                  className={`flex w-80 h-14 items-center justify-between px-4 py-0 absolute left-0 transition-colors duration-300 hover:bg-opacity-80 cursor-pointer ${sidebarThemeClasses}`}
-                  style={{ top: `${228 + index * 56}px` }}
-                >
-                  <div className="inline-flex items-center gap-4 relative flex-[0_0_auto]">
-                    <div className={`w-10 h-10 items-center justify-center rounded-lg flex relative transition-colors duration-300 ${isDarkMode ? 'bg-gray-700 text-blue-400' : 'bg-[#eaf2ef] text-[#5b8984]'}`}>
-                      {item.icon}
-                    </div>
-
-                    <div className="flex-col items-start flex-1 grow flex relative">
-                      <div className={`relative self-stretch mt-[-1.00px] font-normal text-base tracking-[0] leading-6 transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-[#111616]'}`}>
-                        {item.label}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="inline-flex flex-col items-start relative flex-[0_0_auto]">
-                    <div className="flex w-7 items-center justify-center relative flex-1 grow">
-                      <div className={`w-6 h-6 transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-[#5b8984]'}`}>
-                        →
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-            {/* Main content */}
-            <main className="flex flex-col items-start flex-1 grow relative h-[760px]">
-              <Tabs defaultValue="extraction" className="w-full flex flex-col flex-1">
-                {/* Header with theme toggle */}
-                <div className="flex flex-col items-start pt-0 pb-3 px-0 relative self-stretch w-full flex-[0_0_auto]">
-                  <div className={`relative self-stretch w-full h-[54px] border-b transition-colors duration-300 ${isDarkMode ? 'border-gray-700' : 'border-[#d6e2e0]'}`}>
-                    <TabsList className="bg-transparent h-full p-0 justify-start">
-                      <TabsTrigger
-                        value="extraction"
-                        className={`h-full pt-4 pb-[13px] px-4 data-[state=active]:border-b-[3px] data-[state=active]:shadow-none data-[state=active]:font-bold rounded-none transition-colors duration-300 ${
-                          isDarkMode
-                            ? 'data-[state=active]:border-blue-400 data-[state=active]:text-wgray data-[state=inactive]:text-gray data-[state=active]:bg-gray-700'
-                            : 'data-[state=active]:border-[#9da1a4] data-[state=active]:text-[#111616] data-[state=inactive]:text-[#5b8984]data-[state=active]:bg-[#9c9b9b]'
-                        }`}
-                      >
-                        Extraction de Données
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="generation"
-                        className={`h-full pt-4 pb-[13px] px-4 data-[state=active]:border-b-[3px] data-[state=active]:shadow-none data-[state=active]:font-bold rounded-none transition-colors duration-300 ${
-                          isDarkMode
-                            ? 'data-[state=active]:border-blue-400 data-[state=active]:text-white data-[state=inactive]:text-white data-[state=active]:bg-gray-700'
-                            : 'data-[state=active]:border-[#9da1a4] data-[state=active]:text-[#111616] data-[state=inactive]:text-[#5b8984]'
-                        }`}
-                      >
-                        Génération de Rapport
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="presentation"
-                        className={`h-full pt-4 pb-[13px] px-4 data-[state=active]:border-b-[3px] data-[state=active]:shadow-none data-[state=active]:font-bold rounded-none transition-colors duration-300 ${
-                          isDarkMode
-                            ? 'data-[state=active]:border-blue-400 data-[state=active]:text-white data-[state=inactive]:text-white data-[state=active]:bg-gray-700'
-                            : 'data-[state=active]:border-[#9da1a4] data-[state=active]:text-[#111616] data-[state=inactive]:text-[#5b8984]'
-                        }`}
-                      >
-                        Génération de présentation
-                      </TabsTrigger>
-                    </TabsList>
-
-                    {/* Theme toggle button */}
-                    <button
-                      onClick={toggleTheme}
-                      className={`absolute w-[30px] h-[30px] top-[12px] right-[15px] rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
-                        isDarkMode 
-                          ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600' 
-                          : 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
-                      }`}
-                    >
-                      {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                    </button>
-                  </div>
-                </div>
-
-                <TabsContent value="extraction" className="flex-1 mt-0">
-                  {/* Section title */}
-                  <div className="flex flex-col items-start pt-4 pb-2 px-4 relative self-stretch w-full flex-[0_0_auto]">
-                    <h3 className={`relative self-stretch mt-[-1.00px] font-bold text-lg tracking-[0] leading-[23px] transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-[#111616]'}`}>
-                      Extraction de Données
-                    </h3>
-                  </div>
-
-                  {/* File upload section */}
-                  <div className="flex flex-col items-start p-4 relative self-stretch w-full flex-[0_0_auto]">
-                    <Card className={`flex flex-col items-center gap-6 px-6 py-14 relative self-stretch w-full flex-[0_0_auto] rounded-xl border-2 border-dashed bg-transparent transition-colors duration-300 ${
-                      isDarkMode ? 'border-gray-600' : 'border-[#d6e2e0]'
-                    }`}>
-                      <CardContent className="p-0 flex flex-col items-center gap-6">
-                        <div className="inline-flex flex-col max-w-[480px] items-center gap-2 relative flex-[0_0_auto]">
-                          <Upload className={`w-12 h-12 mb-4 transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-[#5b8984]'}`} />
-                          <div className="inline-flex flex-col max-w-[480px] items-center relative flex-[0_0_auto]">
-                            <h4 className={`relative self-stretch mt-[-1.00px] font-bold text-lg text-center tracking-[0] leading-[23px] whitespace-nowrap transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-[#111616]'}`}>
-                              Glissez et déposez vos fichiers ici
-                            </h4>
-                          </div>
-
-                          <div className="inline-flex flex-col max-w-[480px] items-center relative flex-[0_0_auto]">
-                            <p className={`relative self-stretch mt-[-1.00px] font-normal text-sm text-center tracking-[0] leading-[21px] whitespace-nowrap transition-colors duration-300 ${isDarkMode ? 'text-gray-300' : 'text-[#111616]'}`}>
-                              PDF, PNG, JPG, JPEG (Max. 200MB)
-                            </p>
-                          </div>
-                        </div>
-
-                        <Button
-                          variant="outline"
-                          className={`min-w-[84px] max-w-[480px] h-10 px-4 py-0 rounded-xl font-bold transition-colors duration-300 ${
-                            isDarkMode 
-                              ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600' 
-                              : 'bg-[#eaf2ef] border-[#d6e2e0] text-[#111616] hover:bg-[#d8e8e3]'
-                          }`}
-                        >
-                          Parcourir les fichiers
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Action button */}
-                  <div className="flex items-start justify-end px-4 py-3 relative self-stretch w-full flex-[0_0_auto]">
-                    <Button className={`min-w-[84px] max-w-[480px] h-10 px-4 py-0 rounded-xl font-bold transition-colors duration-300 ${
-                      isDarkMode 
-                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                        : 'bg-[#a0ddd8] text-[#111616] hover:bg-[#8accc7]'
-                    }`}>
-                      Commencer le traitement
-                    </Button>
-                  </div>
-
-                  {/* Results section title */}
-                  <div className="flex flex-col items-start pt-4 pb-2 px-4 relative self-stretch w-full flex-[0_0_auto]">
-                    <h3 className={`relative self-stretch mt-[-1.00px] font-bold text-lg tracking-[0] leading-[23px] transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-[#111616]'}`}>
-                      Résultats
-                    </h3>
-                  </div>
-
-                  {/* Results section */}
-                  <div className="flex flex-col items-start p-4 relative self-stretch w-full flex-[0_0_auto]">
-                    <Card className={`flex flex-col items-center gap-6 px-6 py-14 relative self-stretch w-full flex-[0_0_auto] rounded-xl border-2 border-dashed bg-transparent transition-colors duration-300 ${
-                      isDarkMode ? 'border-gray-600' : 'border-[#d6e2e0]'
-                    }`}>
-                      <CardContent className="p-0 flex flex-col items-center gap-6">
-                        <div className="inline-flex flex-col max-w-[480px] items-center gap-2 relative flex-[0_0_auto]">
-                          <Download className={`w-12 h-12 mb-4 transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-[#5b8984]'}`} />
-                          <div className="inline-flex flex-col max-w-[480px] items-center relative flex-[0_0_auto]">
-                            <h4 className={`relative self-stretch mt-[-1.00px] font-bold text-lg text-center tracking-[0] leading-[23px] whitespace-nowrap transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-[#111616]'}`}>
-                              Aperçu non disponible
-                            </h4>
-                          </div>
-
-                          <div className="inline-flex flex-col max-w-[480px] items-center relative flex-[0_0_auto]">
-                            <p className={`relative self-stretch mt-[-1.00px] font-normal text-sm text-center tracking-[0] leading-[21px] whitespace-nowrap transition-colors duration-300 ${isDarkMode ? 'text-gray-300' : 'text-[#111616]'}`}>
-                              Vérifiez et téléchargez le résultat
-                            </p>
-                          </div>
-                        </div>
-
-                        <Button
-                          variant="outline"
-                          className={`min-w-[84px] max-w-[480px] h-10 px-4 py-0 rounded-xl font-bold transition-colors duration-300 ${
-                            isDarkMode 
-                              ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600' 
-                              : 'bg-[#eaf2ef] border-[#d6e2e0] text-[#111616] hover:bg-[#d8e8e3]'
-                          }`}
-                        >
-                          Vérifiez et téléchargez le résultat
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="generation" className="flex-1 mt-0">
-                  {/* Section title */}
-                  <div className="flex flex-col items-start pt-4 pb-2 px-4 relative self-stretch w-full flex-[0_0_auto]">
-                    <h3 className={`relative self-stretch mt-[-1.00px] font-bold text-lg tracking-[0] leading-[23px] transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-[#111616]'}`}>
-                      Générer un rapport
-                    </h3>
-                  </div>
-
-                  {/* File upload section */}
-                  <div className="flex flex-col items-start p-4 relative self-stretch w-full flex-[0_0_auto]">
-                    <Card className={`flex flex-col items-center gap-6 px-6 py-14 relative self-stretch w-full flex-[0_0_auto] rounded-xl border-2 border-dashed bg-transparent transition-colors duration-300 ${
-                      isDarkMode ? 'border-gray-600' : 'border-[#d6e2e0]'
-                    }`}>
-                      <CardContent className="p-0 flex flex-col items-center gap-6">
-                        <div className="inline-flex flex-col max-w-[480px] items-center gap-2 relative flex-[0_0_auto]">
-                          <FileText className={`w-12 h-12 mb-4 transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-[#5b8984]'}`} />
-                          <div className="inline-flex flex-col max-w-[480px] items-center relative flex-[0_0_auto]">
-                            <h4 className={`relative self-stretch mt-[-1.00px] font-bold text-lg text-center tracking-[0] leading-[23px] whitespace-nowrap transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-[#111616]'}`}>
-                              Configurez vos paramètres de génération
-                            </h4>
-                          </div>
-
-                          <div className="inline-flex flex-col max-w-[480px] items-center relative flex-[0_0_auto]">
-                            <p className={`relative self-stretch mt-[-1.00px] font-normal text-sm text-center tracking-[0] leading-[21px] whitespace-nowrap transition-colors duration-300 ${isDarkMode ? 'text-gray-300' : 'text-[#111616]'}`}>
-                              Définissez les critères de génération de données
-                            </p>
-                          </div>
-                        </div>
-
-                        <Button
-                          variant="outline"
-                          className={`min-w-[84px] max-w-[480px] h-10 px-4 py-0 rounded-xl font-bold transition-colors duration-300 ${
-                            isDarkMode 
-                              ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600' 
-                              : 'bg-[#eaf2ef] border-[#d6e2e0] text-[#111616] hover:bg-[#d8e8e3]'
-                          }`}
-                        >
-                          Commencer la génération
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Action button */}
-                  <div className="flex items-start justify-end px-4 py-3 relative self-stretch w-full flex-[0_0_auto]">
-                    <Button className={`min-w-[84px] max-w-[480px] h-10 px-4 py-0 rounded-xl font-bold transition-colors duration-300 ${
-                      isDarkMode 
-                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                        : 'bg-[#a0ddd8] text-[#111616] hover:bg-[#8accc7]'
-                    }`}>
-                      Générer le rapport
-                    </Button>
-                  </div>
-
-                  {/* Results section title */}
-                  <div className="flex flex-col items-start pt-4 pb-2 px-4 relative self-stretch w-full flex-[0_0_auto]">
-                    <h3 className={`relative self-stretch mt-[-1.00px] font-bold text-lg tracking-[0] leading-[23px] transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-[#111616]'}`}>
-                      Résultats de Génération
-                    </h3>
-                  </div>
-
-                  {/* Results section */}
-                  <div className="flex flex-col items-start p-4 relative self-stretch w-full flex-[0_0_auto]">
-                    <Card className={`flex flex-col items-center gap-6 px-6 py-14 relative self-stretch w-full flex-[0_0_auto] rounded-xl border-2 border-dashed bg-transparent transition-colors duration-300 ${
-                      isDarkMode ? 'border-gray-600' : 'border-[#d6e2e0]'
-                    }`}>
-                      <CardContent className="p-0 flex flex-col items-center gap-6">
-                        <div className="inline-flex flex-col max-w-[480px] items-center gap-2 relative flex-[0_0_auto]">
-                          <Download className={`w-12 h-12 mb-4 transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-[#5b8984]'}`} />
-                          <div className="inline-flex flex-col max-w-[480px] items-center relative flex-[0_0_auto]">
-                            <h4 className={`relative self-stretch mt-[-1.00px] font-bold text-lg text-center tracking-[0] leading-[23px] whitespace-nowrap transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-[#111616]'}`}>
-                              Aperçu non disponible
-                            </h4>
-                          </div>
-
-                          <div className="inline-flex flex-col max-w-[480px] items-center relative flex-[0_0_auto]">
-                            <p className={`relative self-stretch mt-[-1.00px] font-normal text-sm text-center tracking-[0] leading-[21px] whitespace-nowrap transition-colors duration-300 ${isDarkMode ? 'text-gray-300' : 'text-[#111616]'}`}>
-                              Vérifiez et téléchargez le résultat de la génération
-                            </p>
-                          </div>
-                        </div>
-
-                        <Button
-                          variant="outline"
-                          className={`min-w-[84px] max-w-[480px] h-10 px-4 py-0 rounded-xl font-bold transition-colors duration-300 ${
-                            isDarkMode 
-                              ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600' 
-                              : 'bg-[#eaf2ef] border-[#d6e2e0] text-[#111616] hover:bg-[#d8e8e3]'
-                          }`}
-                        >
-                          Vérifiez et téléchargez le résultat
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="presentation" className="flex-1 mt-0">
-                  {/* Section title */}
-                  <div className="flex flex-col items-start pt-4 pb-2 px-4 relative self-stretch w-full flex-[0_0_auto]">
-                    <h3 className={`relative self-stretch mt-[-1.00px] font-bold text-lg tracking-[0] leading-[23px] transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-[#111616]'}`}>
-                      Générer une présentation
-                    </h3>
-                  </div>
-
-                  {/* File upload section */}
-                  <div className="flex flex-col items-start p-4 relative self-stretch w-full flex-[0_0_auto]">
-                    <Card className={`flex flex-col items-center gap-6 px-6 py-14 relative self-stretch w-full flex-[0_0_auto] rounded-xl border-2 border-dashed bg-transparent transition-colors duration-300 ${
-                      isDarkMode ? 'border-gray-600' : 'border-[#d6e2e0]'
-                    }`}>
-                      <CardContent className="p-0 flex flex-col items-center gap-6">
-                        <div className="inline-flex flex-col max-w-[480px] items-center gap-2 relative flex-[0_0_auto]">
-                          <FileText className={`w-12 h-12 mb-4 transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-[#5b8984]'}`} />
-                          <div className="inline-flex flex-col max-w-[480px] items-center relative flex-[0_0_auto]">
-                            <h4 className={`relative self-stretch mt-[-1.00px] font-bold text-lg text-center tracking-[0] leading-[23px] whitespace-nowrap transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-[#111616]'}`}>
-                              Configurez vos paramètres de présentation
-                            </h4>
-                          </div>
-
-                          <div className="inline-flex flex-col max-w-[480px] items-center relative flex-[0_0_auto]">
-                            <p className={`relative self-stretch mt-[-1.00px] font-normal text-sm text-center tracking-[0] leading-[21px] whitespace-nowrap transition-colors duration-300 ${isDarkMode ? 'text-gray-300' : 'text-[#111616]'}`}>
-                              Définissez les critères de génération de présentation
-                            </p>
-                          </div>
-                        </div>
-
-                        <Button
-                          variant="outline"
-                          className={`min-w-[84px] max-w-[480px] h-10 px-4 py-0 rounded-xl font-bold transition-colors duration-300 ${
-                            isDarkMode 
-                              ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600' 
-                              : 'bg-[#eaf2ef] border-[#d6e2e0] text-[#111616] hover:bg-[#d8e8e3]'
-                          }`}
-                        >
-                          Commencer la génération de présentation
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Action button */}
-                  <div className="flex items-start justify-end px-4 py-3 relative self-stretch w-full flex-[0_0_auto]">
-                    <Button className={`min-w-[84px] max-w-[480px] h-10 px-4 py-0 rounded-xl font-bold transition-colors duration-300 ${
-                      isDarkMode 
-                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                        : 'bg-[#a0ddd8] text-[#111616] hover:bg-[#8accc7]'
-                    }`}>
-                      Générer la présentation
-                    </Button>
-                  </div>
-
-                  {/* Results section title */}
-                  <div className="flex flex-col items-start pt-4 pb-2 px-4 relative self-stretch w-full flex-[0_0_auto]">
-                    <h3 className={`relative self-stretch mt-[-1.00px] font-bold text-lg tracking-[0] leading-[23px] transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-[#111616]'}`}>
-                      Résultats de Présentation
-                    </h3>
-                  </div>
-
-                  {/* Results section */}
-                  <div className="flex flex-col items-start p-4 relative self-stretch w-full flex-[0_0_auto]">
-                    <Card className={`flex flex-col items-center gap-6 px-6 py-14 relative self-stretch w-full flex-[0_0_auto] rounded-xl border-2 border-dashed bg-transparent transition-colors duration-300 ${
-                      isDarkMode ? 'border-gray-600' : 'border-[#d6e2e0]'
-                    }`}>
-                      <CardContent className="p-0 flex flex-col items-center gap-6">
-                        <div className="inline-flex flex-col max-w-[480px] items-center gap-2 relative flex-[0_0_auto]">
-                          <Download className={`w-12 h-12 mb-4 transition-colors duration-300 ${isDarkMode ? 'text-gray-400' : 'text-[#5b8984]'}`} />
-                          <div className="inline-flex flex-col max-w-[480px] items-center relative flex-[0_0_auto]">
-                            <h4 className={`relative self-stretch mt-[-1.00px] font-bold text-lg text-center tracking-[0] leading-[23px] whitespace-nowrap transition-colors duration-300 ${isDarkMode ? 'text-white' : 'text-[#111616]'}`}>
-                              Aperçu non disponible
-                            </h4>
-                          </div>
-
-                          <div className="inline-flex flex-col max-w-[480px] items-center relative flex-[0_0_auto]">
-                            <p className={`relative self-stretch mt-[-1.00px] font-normal text-sm text-center tracking-[0] leading-[21px] whitespace-nowrap transition-colors duration-300 ${isDarkMode ? 'text-gray-300' : 'text-[#111616]'}`}>
-                              Vérifiez et téléchargez le résultat de la présentation
-                            </p>
-                          </div>
-                        </div>
-
-                        <Button
-                          variant="outline"
-                          className={`min-w-[84px] max-w-[480px] h-10 px-4 py-0 rounded-xl font-bold transition-colors duration-300 ${
-                            isDarkMode 
-                              ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600' 
-                              : 'bg-[#eaf2ef] border-[#d6e2e0] text-[#111616] hover:bg-[#d8e8e3]'
-                          }`}
-                        >
-                          Vérifiez et téléchargez le résultat
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </main>
-          </div>
-        </aside>
+      {/* Sidebar */}
+      <aside
+        className={`fixed top-0 left-0 h-full z-20 w-80 transition-transform duration-300 ease-in-out lg:relative lg:w-[430px] lg:translate-x-0 ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } ${sidebarThemeClasses}`}
+      >
+        <div className="flex justify-between items-center p-4 lg:hidden">
+          <h2 className="text-lg font-bold">Menu</h2>
+          <button onClick={toggleSidebar}>
+            <X className="w-6 h-6" />
+          </button>
         </div>
+        
+        {/* Profile section */}
+        <div className="flex flex-col items-center justify-center p-4">
+          <Avatar className="w-32 h-32 rounded-full mb-4">
+            <img src={logo} alt="logo" className="h-full w-full object-cover" />
+          </Avatar>
+          <h2 className={`text-xl lg:text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            JEAN RAPHAËL BERT
+          </h2>
+          <p className={`text-base lg:text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            CONSULTANT
+          </p>
+        </div>
+
+        {/* Navigation menu */}
+        <nav className={`flex flex-col p-4 ${isDarkMode ? 'bg-gray-800' : ''}`}>
+          {navItems.map((item) => (
+            <a
+              href="#"
+              key={item.label}
+              className={`flex items-center gap-4 p-3 rounded-lg transition-colors duration-300 text-base lg:text-lg ${isDarkMode ? 'text-gray-100 hover:bg-gray-800' : 'text-gray-800 hover:bg-gray-200'}`}
+            >
+              <div className={`w-10 h-10 flex items-center justify-center rounded-lg ${isDarkMode ? 'bg-gray-700 text-blue-400' : 'bg-[#545554] text-[#5b8984]'}`}>
+                {item.icon}
+              </div>
+              <span className="font-medium">{item.label}</span>
+            </a>
+          ))}
+        </nav>
+      </aside>
+
+      {/* Main content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <header className="flex items-center justify-between p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}">
+          <button onClick={toggleSidebar} className="lg:hidden">
+            <Menu className="w-6 h-6" />
+          </button>
+          <div className="flex-1"></div> {/* This will push the theme toggle to the right */}
+          <button
+            onClick={toggleTheme}
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+              isDarkMode 
+                ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600' 
+                : 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
+            }`}
+          >
+            {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
+        </header>
+
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <Tabs defaultValue="extraction" className="w-full">
+            <TabsList className={`grid w-full grid-cols-1 sm:grid-cols-3 h-auto sm:h-12 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'}`}>
+              {tabItems.map(tab => (
+                <TabsTrigger 
+                  key={tab.value} 
+                  value={tab.value}
+                  className={`text-base lg:text-lg rounded-md ${isDarkMode 
+                    ? 'data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-300' 
+                    : 'data-[state=active]:bg-white data-[state=active]:text-black'}`}>
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            {[ 'extraction', 'generation', 'presentation' ].map(tab => {
+              const content = {
+                extraction: {
+                  title: 'Extraction de Données',
+                  icon: <Upload className={`w-10 h-10 mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`} />,
+                  buttonLabel: 'Commencer le traitement',
+                  resultLabel: 'Résultats'
+                },
+                generation: {
+                  title: 'Générer un rapport',
+                  icon: <FileText className={`w-10 h-10 mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`} />,
+                  buttonLabel: 'Générer le rapport',
+                  resultLabel: 'Résultats de Génération'
+                },
+                presentation: {
+                  title: 'Générer une présentation',
+                  icon: <FileText className={`w-10 h-10 mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`} />,
+                  buttonLabel: 'Générer la présentation',
+                  resultLabel: 'Résultats de Présentation'
+                }
+              };
+              const currentContent = content[tab];
+
+              return (
+                <TabsContent value={tab} className="mt-4" key={tab}>
+                  <div className="flex flex-col items-center w-full gap-4">
+                    <h3 className="text-xl lg:text-2xl font-bold w-4/5">{currentContent.title}</h3>
+                    <Card {...(tab === 'extraction' ? getExtractionRootProps() : tab === 'generation' ? getGenerationRootProps() : getPresentationRootProps())} className={`w-4/5 min-h-[320px] p-4 sm:p-6 border-2 border-dashed bg-transparent ${cardThemeClasses} flex flex-col justify-center items-center cursor-pointer`}>
+                      <input {...(tab === 'extraction' ? getExtractionInputProps() : tab === 'generation' ? getGenerationInputProps() : getPresentationInputProps())} />
+                      <CardContent className="flex flex-col items-center gap-4">
+                        {(tab === 'extraction' && isExtractionDragActive) || (tab === 'generation' && isGenerationDragActive) || (tab === 'presentation' && isPresentationDragActive) ? (
+                          <p className={`text-lg lg:text-xl font-bold text-center ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>Déposez les fichiers ici...</p>
+                        ) : (
+                          <>
+                            {currentContent.icon}
+                            <h4 className={`text-lg lg:text-xl font-bold text-center ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Glissez et déposez vos fichiers ici</h4>
+                            <p className={`text-base lg:text-lg text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>PDF, PNG, JPG, JPEG (Max. 200MB)</p>
+                            <Button
+                    variant="outline"
+                    className={clsx(
+                      'mt-2 text-base lg:text-lg',
+                      isDarkMode
+                        ? 'bg-gray-700 border-gray-600 hover:bg-gray-600 text-white'
+                        : 'bg-[#eaf2ef] border-[#d6e2e0] hover:bg-[#d8e8e3] text-gray-800'
+                    )}
+                  >
+                    Parcourir les fichiers
+                  </Button>
+                          </>
+                        )}
+                      </CardContent>
+                    </Card>
+                    {(tab === 'extraction' && extractionFiles.length > 0) || (tab === 'generation' && generationFiles.length > 0) || (tab === 'presentation' && presentationFiles.length > 0) ? (
+                      <div className="w-4/5 mt-4">
+                        <h4 className="text-lg font-bold mb-2">Fichiers téléversés:</h4>
+                        <ul>
+                          {(tab === 'extraction' ? extractionFiles : tab === 'generation' ? generationFiles : presentationFiles).map(file => (
+                            <li key={file.path} className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {file.path} - {file.size} bytes
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    <div className="flex justify-center mt-4 w-4/5">
+                      <Button
+                        onClick={() => handleProcess(tab)}
+                        disabled={processingState[tab].isProcessing}
+                        className={clsx(
+                          'text-base lg:text-lg',
+                          isDarkMode
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                            : 'bg-[#a0ddd8] hover:bg-[#8accc7] text-gray-800'
+                        )}
+                      >
+                        {processingState[tab].isProcessing ? 'Traitement en cours...' : currentContent.buttonLabel}
+                      </Button>
+                    </div>
+                    <h3 className="text-xl lg:text-2xl font-bold mt-6 w-4/5">{currentContent.resultLabel}</h3>
+                    <Card className={`w-4/5 min-h-[320px] p-4 sm:p-6 border-2 border-dashed bg-transparent ${cardThemeClasses} flex flex-col justify-center`}>
+                      <CardContent className="flex flex-col items-center gap-4">
+                        {processingState[tab].isProcessing ? (
+                          <div className="flex flex-col items-center gap-4">
+                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+                            <p className="text-lg">Traitement en cours...</p>
+                          </div>
+                        ) : processingState[tab].error ? (
+                          <p className="text-red-500">{processingState[tab].error}</p>
+                        ) : processingState[tab].result ? (
+                          <a href={processingState[tab].result} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline" className={`mt-2 text-base lg:text-lg ${isDarkMode ? 'bg-gray-700 border-gray-600 hover:bg-gray-600 text-white' : 'bg-[#eaf2ef] border-[#d6e2e0] hover:bg-[#d8e8e3] text-gray-800'}`}>
+                              Vérifiez et téléchargez le résultat
+                            </Button>
+                          </a>
+                        ) : (
+                          <>
+                            <Download className={`w-10 h-10 mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`} />
+                            <h4 className={`text-lg lg:text-xl font-bold text-center ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Aperçu non disponible</h4>
+                            <p className={`text-base lg:text-lg text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Vérifiez et téléchargez le résultat</p>
+                            <Button variant="outline" className={`mt-2 text-base lg:text-lg ${isDarkMode ? 'bg-gray-700 border-gray-600 hover:bg-gray-600 text-white' : 'bg-[#eaf2ef] border-[#d6e2e0] hover:bg-[#d8e8e3] text-gray-800'}`}>
+                              Vérifiez et téléchargez le résultat
+                            </Button>
+                          </>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+              )
+            })}
+          </Tabs>
+        </main>
+        <footer className="flex justify-center items-center w-full py-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}">
+          <p
+                    className={clsx(
+                      'text-base lg:text-lg',
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    )}
+                  >
+                    Copyright JRBC 2025 All rights reserved
+                  </p>
+        </footer>
       </div>
     </div>
   );
-}; 
+};
