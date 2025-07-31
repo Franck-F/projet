@@ -457,5 +457,5 @@ export const StitchDesign = (): JSX.Element => {
         </div>
       </div>
     </div>
-  )
+  );
 }; 
