@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Avatar } from "../../components/ui/avatar";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
@@ -8,6 +8,9 @@ import logo from "../../assets/logo.jpg";
 import { Database, FileText, Menu, Moon, Sun, Upload, Download, X } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx'; // Import clsx
+import '@n8n/chat/style.css';
+import '../../chat-customizations.css'; // Import custom CSS
+import { createChat } from '@n8n/chat';
 
 declare module "*.jpg" {
   const value: string;
@@ -128,6 +131,11 @@ export const StitchDesign = (): JSX.Element => {
   const sidebarThemeClasses = isDarkMode 
     ? "bg-gray-800" 
     : "bg-[#f9f9f9]";
+  useEffect(() => {
+    createChat({
+      webhookUrl: 'https://n8n.srv856869.hstgr.cloud/webhook/4091fa09-fb9a-4039-9411-7104d213f601/chat'
+    });
+  }, []);
 
   return (
     <div className={`flex h-screen overflow-hidden ${themeClasses}`}>
