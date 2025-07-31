@@ -133,7 +133,34 @@ export const StitchDesign = (): JSX.Element => {
     : "bg-[#f9f9f9]";
   useEffect(() => {
     createChat({
-      webhookUrl: 'https://n8n.srv856869.hstgr.cloud/webhook/4091fa09-fb9a-4039-9411-7104d213f601/chat'
+      webhookUrl: 'https://n8n.srv856869.hstgr.cloud/webhook/4091fa09-fb9a-4039-9411-7104d213f601/chat',
+      webhookConfig: {
+        method: 'POST',
+        headers: {}
+      },
+      target: '#n8n-chat',
+      mode: 'window',
+      chatInputKey: 'chatInput',
+      chatSessionKey: 'sessionId',
+      loadPreviousSession: true,
+      metadata: {},
+      showWelcomeScreen: false,
+      defaultLanguage: 'en',
+      initialMessages: [
+        'Salut ! 👋',
+        'Comment puis-je t\'aider aujourd\'hui ?'
+      ],
+      i18n: {
+        en: {
+          title: '👋',
+          subtitle: "Démarre une nouvell conversation.",
+          footer: '',
+          getStarted: 'Nouvelle conversation',
+          inputPlaceholder: 'Tapez votre question..',
+          closeButtonTooltip: 'Fermer le chat',
+        },
+      },
+      enableStreaming: false,
     });
   }, []);
 
