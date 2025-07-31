@@ -84,7 +84,8 @@ export const StitchDesign = (): JSX.Element => {
       });
       // Extract the URL from the response data
       const downloadUrl = response.data.Url;
-      setProcessingState(prev => ({ ...prev, [tab]: { isProcessing: false, result: downloadUrl, error: null } }));
+            console.log("Réponse du webhook:", response.data);
+      setProcessingState(prev => ({ ...prev, [tab]: { isProcessing: false, result: response.data, error: null } }));
     } catch (error) {
       setProcessingState(prev => ({ ...prev, [tab]: { isProcessing: false, result: null, error: "Une erreur est survenue." } }));
     } 
