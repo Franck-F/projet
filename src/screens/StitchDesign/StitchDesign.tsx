@@ -50,7 +50,7 @@ export const StitchDesign = (): JSX.Element => {
       case 'extraction':
         files = extractionFiles;
         setFiles = setExtractionFiles;
-        webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook-test/d7a23733-4bd3-43a3-95f8-76cdcc889e72";
+        webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook/d7a23733-4bd3-43a3-95f8-76cdcc889e72";
         break;
       case 'generation':
         files = generationFiles;
