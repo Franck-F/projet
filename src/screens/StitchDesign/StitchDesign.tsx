@@ -306,11 +306,13 @@ export const StitchDesign = (): JSX.Element => {
                         ) : processingState[tab].error ? (
                           <p className="text-red-500">{processingState[tab].error}</p>
                         ) : processingState[tab].result ? (
-                          <a href={processingState[tab].result} target="_blank" rel="noopener noreferrer">
-                            <Button variant="outline" className={`mt-2 text-base lg:text-lg ${isDarkMode ? 'bg-gray-700 border-gray-600 hover:bg-gray-600 text-white' : 'bg-[#eaf2ef] border-[#d6e2e0] hover:bg-[#d8e8e3] text-gray-800'}`}>
-                              Vérifiez et téléchargez le résultat
-                            </Button>
-                          </a>
+                          <Button
+                            variant="outline"
+                            className={`mt-2 text-base lg:text-lg ${isDarkMode ? 'bg-gray-700 border-gray-600 hover:bg-gray-600 text-white' : 'bg-[#eaf2ef] border-[#d6e2e0] hover:bg-[#d8e8e3] text-gray-800'}`}
+                            onClick={() => window.open(processingState[tab].result, '_blank')}
+                          >
+                            Vérifiez et téléchargez le résultat
+                          </Button>
                         ) : (
                           <>
                             <Download className={`w-10 h-10 mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`} />
