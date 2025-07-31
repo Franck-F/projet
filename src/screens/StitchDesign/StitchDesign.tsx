@@ -453,8 +453,9 @@ export const StitchDesign = (): JSX.Element => {
               </Tabs>
             </main>
           </div>
+        </aside>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}; 
