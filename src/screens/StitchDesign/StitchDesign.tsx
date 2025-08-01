@@ -47,6 +47,7 @@ export const StitchDesign = (): JSX.Element => {
   const { getRootProps: getPresentationRootProps, getInputProps: getPresentationInputProps, isDragActive: isPresentationDragActive } = useDropzone({ onDrop: onDropPresentation });
 
   const handleProcess = async (tab) => {
+    console.log(`Début du traitement pour l'onglet: ${tab}`);
     let files, setFiles, webhookUrl;
 
     switch (tab) {
@@ -70,15 +71,20 @@ export const StitchDesign = (): JSX.Element => {
     }
 
     if (files.length === 0) {
+      console.log("Aucun fichier téléversé.");
       setProcessingState(prev => ({ ...prev, [tab]: { ...prev[tab], error: "Veuillez téléverser un fichier." } }));
       return;
     }
+
+    console.log("Fichiers à traiter:", files);
+    console.log("URL du webhook:", webhookUrl);
 
     setProcessingState(prev => ({ ...prev, [tab]: { isProcessing: true, error: null, result: null } }));
 
     const formData = new FormData();
     formData.append("file", files[0]);
 
+    console.log("Envoi de la requête au webhook...");
     try {
       const response = await axios.post(webhookUrl, formData, {
         headers: {
@@ -89,6 +95,7 @@ export const StitchDesign = (): JSX.Element => {
       console.log("Réponse du webhook:", response.data);
       setProcessingState(prev => ({ ...prev, [tab]: { isProcessing: false, result: response.data, error: null } }));
     } catch (error) {
+      console.error("Erreur lors de l'appel au webhook:", error);
       setProcessingState(prev => ({ ...prev, [tab]: { isProcessing: false, result: null, error: "Une erreur est survenue." } }));
     } 
   };
