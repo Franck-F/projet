@@ -53,7 +53,7 @@ export const StitchDesign = (): JSX.Element => {
       case 'extraction':
         files = extractionFiles;
         setFiles = setExtractionFiles;
-        webhookUrl = "/api/chat";
+        webhookUrl = "/api/extraction-proxy";
         break;
       case 'generation':
         files = generationFiles;
