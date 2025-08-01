@@ -133,7 +133,7 @@ export const StitchDesign = (): JSX.Element => {
     : "bg-[#f9f9f9]";
   useEffect(() => {
     createChat({
-      webhookUrl: '/api/chat',
+      webhookUrl: 'https://n8n.srv856869.hstgr.cloud/webhook/4091fa09-fb9a-4039-9411-7104d213f601/chat',
       webhookConfig: {
         method: 'POST',
         headers: {}

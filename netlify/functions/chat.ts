@@ -1,6 +1,6 @@
 import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 
-const N8N_WEBHOOK_URL = 'https://n8n.srv856869.hstgr.cloud/webhook/4091fa09-fb9a-4039-9411-7104d213f601/chat';
+const N8N_WEBHOOK_URL = 'https://n8n.srv856869.hstgr.cloud/webhook/c9b3deb8-2d60-40c3-9eb6-624961acde5e';
 
 const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
   // Seuls les requêtes POST sont autorisées
