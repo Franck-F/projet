@@ -53,7 +53,7 @@ export const StitchDesign = (): JSX.Element => {
       case 'extraction':
         files = extractionFiles;
         setFiles = setExtractionFiles;
-        webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook/d7a23733-4bd3-43a3-95f8-76cdcc889e72";
+        webhookUrl = "/api/chat";
         break;
       case 'generation':
         files = generationFiles;
@@ -133,7 +133,7 @@ export const StitchDesign = (): JSX.Element => {
     : "bg-[#f9f9f9]";
   useEffect(() => {
     createChat({
-      webhookUrl: 'https://n8n.srv856869.hstgr.cloud/webhook/4091fa09-fb9a-4039-9411-7104d213f601/chat',
+      webhookUrl: '/api/chat',
       webhookConfig: {
         method: 'POST',
         headers: {}
