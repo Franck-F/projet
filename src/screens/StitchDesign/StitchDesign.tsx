@@ -156,6 +156,8 @@ export const StitchDesign = (): JSX.Element => {
         'Salut ! 👋',
         'Comment puis-je t\'aider aujourd\'hui ?'
       ],
+      allowFileUploads: true,
+      allowedFilesMimeTypes: 'application/pdf,image/png,image/jpeg',
       i18n: {
         en: {
           title: '👋',
@@ -164,9 +166,23 @@ export const StitchDesign = (): JSX.Element => {
           getStarted: 'Nouvelle conversation',
           inputPlaceholder: 'Tapez votre question..',
           closeButtonTooltip: 'Fermer le chat',
+          fileUploadDropzoneLabel: 'Glissez et déposez les fichiers ici ou cliquez pour parcourir',
+          fileUploadButtonLabel: 'Téléverser un fichier',
+        },
+        fr: {
+          title: '👋',
+          subtitle: "Démarre une nouvelle conversation.",
+          footer: '',
+          getStarted: 'Nouvelle conversation',
+          inputPlaceholder: 'Tapez votre question..',
+          closeButtonTooltip: 'Fermer le chat',
+          fileUploadDropzoneLabel: 'Glissez et déposez les fichiers ici ou cliquez pour parcourir',
+          fileUploadButtonLabel: 'Téléverser un fichier',
         },
       },
       enableStreaming: false,
+      allowFileUploads: true,
+      allowedFilesMimeTypes: 'application/pdf,image/png,image/jpeg',
     });
   }, []);
 
