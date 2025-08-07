@@ -59,12 +59,12 @@ export const StitchDesign = (): JSX.Element => {
       case 'generation':
         files = generationFiles;
         setFiles = setGenerationFiles;
-        webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook-test/d7a23733-4bd3-43a3-95f8-76cdcc889e72"; // Remplacez par le bon webhook
+        webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook/generer-rapport"; // Remplacez par le bon webhook
         break;
       case 'presentation':
         files = presentationFiles;
         setFiles = setPresentationFiles;
-        webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook-test/d7a23733-4bd3-43a3-95f8-76cdcc889e72"; // Remplacez par le bon webhook
+        webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook/generer-rapport"; // Remplacez par le bon webhook
         break;
       default:
         return;
@@ -152,22 +152,23 @@ export const StitchDesign = (): JSX.Element => {
       metadata: {},
       showWelcomeScreen: false,
       defaultLanguage: 'en',
-      initialMessages: [
-        'Salut ! 👋',
-        'Comment puis-je t\'aider aujourd\'hui ?'
+      theme: 'dark',
+      initialMessages: [],
+      defaultQueries: [
+        'Extraire les données du document',
+        'Générer un rapport à partir des données',
+        'Créer une présentation PowerPoint',
       ],
-      allowFileUploads: true,
-      allowedFilesMimeTypes: 'application/pdf,image/png,image/jpeg',
       i18n: {
         en: {
           title: '👋',
-          subtitle: "Démarre une nouvell conversation.",
+          subtitle: "Start new conversation.",
           footer: '',
-          getStarted: 'Nouvelle conversation',
-          inputPlaceholder: 'Tapez votre question..',
-          closeButtonTooltip: 'Fermer le chat',
+          getStarted: 'New Chat',
+          inputPlaceholder: 'Enter your question..',
+          closeButtonTooltip: 'Close Chat',
           fileUploadDropzoneLabel: 'Glissez et déposez les fichiers ici ou cliquez pour parcourir',
-          fileUploadButtonLabel: 'Téléverser un fichier',
+          fileUploadButtonLabel: 'Upload File',
         },
         fr: {
           title: '👋',
@@ -184,7 +185,7 @@ export const StitchDesign = (): JSX.Element => {
       allowFileUploads: true,
       allowedFilesMimeTypes: 'application/pdf,image/png,image/jpeg',
     });
-  }, []);
+  }, [isDarkMode]);
 
   return (
     <div className={`flex h-screen overflow-hidden ${themeClasses}`}>

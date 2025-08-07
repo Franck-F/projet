@@ -5,11 +5,11 @@
   --chat--color-secondary: #a0ddd8; /* Secondary color */
   --chat--color-secondary-shade-50: #8accc7;
   --chat--color-white: #ffffff;
-  --chat--color-light: #f2f4f8;
-  --chat--color-light-shade-50: #e6e9f1;
-  --chat--color-light-shade-100: #c2c5cc;
-  --chat--color-medium: #d2d4d9;
-  --chat--color-dark: #111616; /* Dark background color */
+  --chat--color-light: #333333; /* Darker background for light elements in dark mode */
+  --chat--color-light-shade-50: #444444;
+  --chat--color-light-shade-100: #555555;
+  --chat--color-medium: #666666;
+  --chat--color-dark: #1a1a1a; /* Very dark background color */
   --chat--color-disabled: #777980;
   --chat--color-typing: #404040;
 
@@ -37,7 +37,7 @@
   --chat--message--border-radius: 0.5rem; /* Increased border radius */
   --chat--message-line-height: 1.6;
   --chat--message--bot--background: var(--chat--color-light); /* Light background for bot messages */
-  --chat--message--bot--color: var(--chat--color-dark); /* Dark text for bot messages */
+  --chat--message--bot--color: var(--chat--color-white); /* Light text for bot messages in dark mode */
   --chat--message--bot--border: none;
   --chat--message--user--background: var(--chat--color-secondary);
   --chat--message--user--color: var(--chat--color-white);
