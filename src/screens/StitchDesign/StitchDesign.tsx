@@ -397,7 +397,7 @@ export const StitchDesign = (): JSX.Element => {
                       isDarkMode ? 'text-gray-400' : 'text-gray-500'
                     )}
                   >
-                    Copyright JRBC 2025 All rights reserved
+                    Copyright - JRBC 2025 All rights reserved
                   </p>
         </footer>
       </div>
