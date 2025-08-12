@@ -64,7 +64,7 @@ export const StitchDesign = (): JSX.Element => {
       case 'presentation':
         files = presentationFiles;
         setFiles = setPresentationFiles;
-        webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook/generer-rapport"; // Remplacez par le bon webhook
+        webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook/generer_presentation"; // Remplacez par le bon webhook
         break;
       default:
         return;
@@ -161,13 +161,13 @@ export const StitchDesign = (): JSX.Element => {
       ],
       i18n: {
         en: {
-          title: '👋',
+          title: 'Discutez avec vos fichiers et documents',
+          footer: 'Vous pouvez ajouter des fichiers et documents à partir de votre ordinateur ou de votre cloud de stockage.',
+          getStarted: 'Commencer la conversation',
+          inputPlaceholder: 'Entrez votre question..',
+          closeButtonTooltip: 'Fermer la conversation',
+          fileUploadDropzoneLabel: 'Glissez et déposez les 📂',
           subtitle: "Start new conversation.",
-          footer: '',
-          getStarted: 'New Chat',
-          inputPlaceholder: 'Enter your question..',
-          closeButtonTooltip: 'Close Chat',
-          fileUploadDropzoneLabel: 'Glissez et déposez les fichiers ici ou cliquez pour parcourir',
           fileUploadButtonLabel: 'Upload File',
         },
         fr: {
@@ -362,24 +362,44 @@ export const StitchDesign = (): JSX.Element => {
                             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
                             <p className="text-lg">Traitement en cours...</p>
                           </div>
-                        ) : processingState[tab].error ? (
-                          <p className="text-red-500">{processingState[tab].error}</p>
-                        ) : processingState[tab].result ? (
-                          <Button
-                            variant="outline"
-                            className={`mt-2 text-base lg:text-lg ${isDarkMode ? 'bg-gray-700 border-gray-600 hover:bg-gray-600 text-white' : 'bg-[#eaf2ef] border-[#d6e2e0] hover:bg-[#d8e8e3] text-gray-800'}`}
-                            onClick={() => window.open(processingState[tab].result, '_blank')}
-                          >
-                            Vérifiez et téléchargez le résultat
-                          </Button>
                         ) : (
                           <>
-                            <Download className={`w-10 h-10 mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`} />
-                            <h4 className={`text-lg lg:text-xl font-bold text-center ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Aperçu non disponible</h4>
-                            <p className={`text-base lg:text-lg text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Vérifiez et téléchargez le résultat</p>
-                            <Button variant="outline" className={`mt-2 text-base lg:text-lg ${isDarkMode ? 'bg-gray-700 border-gray-600 hover:bg-gray-600 text-white' : 'bg-[#eaf2ef] border-[#d6e2e0] hover:bg-[#d8e8e3] text-gray-800'}`}>
-                              Vérifiez et téléchargez le résultat
+                            {/* Show default placeholder content if no result and no error */}
+                            {!processingState[tab].result && !processingState[tab].error && (
+                              <>
+                                <Download className={`w-10 h-10 mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`} />
+                                <h4 className={`text-lg lg:text-xl font-bold text-center ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Aperçu non disponible</h4>
+                                <p className={`text-base lg:text-lg text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Vérifiez et téléchargez le résultat</p>
+                              </>
+                            )}
+
+                            {/* The button itself */}
+                            <Button
+                              variant="outline"
+                              className={clsx(
+                                'mt-2 text-base lg:text-lg',
+                                isDarkMode
+                                  ? processingState[tab].result
+                                    ? 'bg-green-600 hover:bg-green-700 text-white'
+                                    : processingState[tab].error
+                                      ? 'bg-red-600 hover:bg-red-700 text-white'
+                                      : 'bg-gray-700 border-gray-600 hover:bg-gray-600 text-white'
+                                  : processingState[tab].result
+                                    ? 'bg-green-500 hover:bg-green-600 text-white'
+                                    : processingState[tab].error
+                                      ? 'bg-red-500 hover:bg-red-600 text-white'
+                                      : 'bg-[#eaf2ef] border-[#d6e2e0] hover:bg-[#d8e8e3] text-gray-800'
+                              )}
+                              onClick={() => processingState[tab].result && window.open(processingState[tab].result, '_blank')}
+                              disabled={!processingState[tab].result && !processingState[tab].error} // Disable if no result and no error
+                            >
+                              {processingState[tab].result ? 'Vérifiez et téléchargez le résultat' : 'Télécharger le résultat'}
                             </Button>
+
+                            {/* Display error message below the button if there's an error */}
+                            {processingState[tab].error && (
+                              <p className="text-red-500">{processingState[tab].error}</p>
+                            )}
                           </>
                         )}
                       </CardContent>
