@@ -48,6 +48,7 @@ module.exports = {
       },
       fontFamily: {
         sans: [
+          "Signika",
           "ui-sans-serif",
           "system-ui",
           "sans-serif",

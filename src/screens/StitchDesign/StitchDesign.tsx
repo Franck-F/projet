@@ -1,44 +1,43 @@
 import React, { useState, useCallback, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Avatar } from "../../components/ui/avatar";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs";
 import axios from 'axios';
 import logo from "../../assets/logo.jpg";
-import { Database, FileText, Menu, Moon, Sun, Upload, Download, X } from 'lucide-react';
+import { FilePlus, Presentation, FileText, Menu, Moon, Sun, Upload, Download, X, HelpCircle, BookOpen } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx'; // Import clsx
 import '@n8n/chat/style.css';
-import '../../chat-customizations.css'; // Import custom CSS
+import '../../chat-customizations.css';
 import { createChat } from '@n8n/chat';
 
-declare module "*.jpg" {
-  const value: string;
-  export default value;
-}
+type TabKey = 'extraction' | 'generation' | 'presentation';
+type OperationState = { isProcessing: boolean; result: string | null; error: string | null };
 
 export const StitchDesign = (): JSX.Element => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const [extractionFiles, setExtractionFiles] = useState([]);
-  const [generationFiles, setGenerationFiles] = useState([]);
-  const [presentationFiles, setPresentationFiles] = useState([]);
-  const [processingState, setProcessingState] = useState({
+  const [extractionFiles, setExtractionFiles] = useState<File[]>([]);
+  const [generationFiles, setGenerationFiles] = useState<File[]>([]);
+  const [presentationFiles, setPresentationFiles] = useState<File[]>([]);
+  const [processingState, setProcessingState] = useState<Record<TabKey, OperationState>>({
     extraction: { isProcessing: false, result: null, error: null },
     generation: { isProcessing: false, result: null, error: null },
     presentation: { isProcessing: false, result: null, error: null },
   });
 
-  const onDropExtraction = useCallback(acceptedFiles => {
+  const onDropExtraction = useCallback((acceptedFiles: File[]) => {
     setExtractionFiles(acceptedFiles);
   }, []);
 
-  const onDropGeneration = useCallback(acceptedFiles => {
+  const onDropGeneration = useCallback((acceptedFiles: File[]) => {
     setGenerationFiles(acceptedFiles);
   }, []);
 
-  const onDropPresentation = useCallback(acceptedFiles => {
+  const onDropPresentation = useCallback((acceptedFiles: File[]) => {
     setPresentationFiles(acceptedFiles);
   }, []);
 
@@ -46,24 +45,22 @@ export const StitchDesign = (): JSX.Element => {
   const { getRootProps: getGenerationRootProps, getInputProps: getGenerationInputProps, isDragActive: isGenerationDragActive } = useDropzone({ onDrop: onDropGeneration });
   const { getRootProps: getPresentationRootProps, getInputProps: getPresentationInputProps, isDragActive: isPresentationDragActive } = useDropzone({ onDrop: onDropPresentation });
 
-  const handleProcess = async (tab) => {
+  const handleProcess = async (tab: TabKey) => {
     console.log(`Début du traitement pour l'onglet: ${tab}`);
-    let files, setFiles, webhookUrl;
+    let files: File[] = [];
+    let webhookUrl = "";
 
     switch (tab) {
       case 'extraction':
         files = extractionFiles;
-        setFiles = setExtractionFiles;
         webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook/c9b3deb8-2d60-40c3-9eb6-624961acde5e"; // Remplacez par le bon webhook
         break;
       case 'generation':
         files = generationFiles;
-        setFiles = setGenerationFiles;
         webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook/generer-rapport"; // Remplacez par le bon webhook
         break;
       case 'presentation':
         files = presentationFiles;
-        setFiles = setPresentationFiles;
         webhookUrl = "https://n8n.srv856869.hstgr.cloud/webhook/generer_presentation"; // Remplacez par le bon webhook
         break;
       default:
@@ -93,7 +90,7 @@ export const StitchDesign = (): JSX.Element => {
       });
       // Extract the URL from the response data
       console.log("Réponse du webhook:", response.data);
-      setProcessingState(prev => ({ ...prev, [tab]: { isProcessing: false, result: response.data, error: null } }));
+      setProcessingState(prev => ({ ...prev, [tab]: { isProcessing: false, result: response.data as string, error: null } }));
     } catch (error) {
       console.error("Erreur lors de l'appel au webhook:", error);
       setProcessingState(prev => ({ ...prev, [tab]: { isProcessing: false, result: null, error: "Une erreur est survenue." } }));
@@ -108,15 +105,17 @@ export const StitchDesign = (): JSX.Element => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  // Help page is now a dedicated route (/help). No internal modal state needed.
+
   // Navigation menu items data
   const navItems = [
     {
-      icon: <Database className="w-6 h-6" />,
-      label: "Extraire",
+      icon: <FilePlus className="w-6 h-6" />,
+      label: "Ajouter un modèle de rapport",
     },
     {
-      icon: <FileText className="w-6 h-6" />,
-      label: "Générer",
+      icon: <Presentation className="w-6 h-6" />,
+      label: "Ajouter un modèle de présentation",
     },
   ];
 
@@ -154,11 +153,6 @@ export const StitchDesign = (): JSX.Element => {
       defaultLanguage: 'en',
       theme: 'dark',
       initialMessages: [],
-      defaultQueries: [
-        'Extraire les données du document',
-        'Générer un rapport à partir des données',
-        'Créer une présentation PowerPoint',
-      ],
       i18n: {
         en: {
           title: 'Discutez avec vos fichiers et documents',
@@ -189,6 +183,7 @@ export const StitchDesign = (): JSX.Element => {
 
   return (
     <div className={`flex h-screen overflow-hidden ${themeClasses}`}>
+      {/* Help content is now served on /help route */}
       {/* Overlay for mobile --- Clicking it will close the sidebar */}
       {isSidebarOpen && (
         <div
@@ -204,9 +199,10 @@ export const StitchDesign = (): JSX.Element => {
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } ${sidebarThemeClasses}`}
       >
+        <div className="flex flex-col h-full">
         <div className="flex justify-between items-center p-4 lg:hidden">
           <h2 className="text-lg font-bold">Menu</h2>
-          <button onClick={toggleSidebar}>
+          <button onClick={toggleSidebar} aria-label="Fermer le menu" title="Fermer le menu">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -238,14 +234,40 @@ export const StitchDesign = (): JSX.Element => {
               <span className="font-medium">{item.label}</span>
             </a>
           ))}
+
+          <a
+            href="https://notebooklm.google.com/notebook/b935055c-463b-4fc4-b680-056da3cd341f"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`mt-1 flex items-center gap-4 p-3 rounded-lg transition-colors duration-300 text-base lg:text-lg ${isDarkMode ? 'text-gray-100 hover:bg-gray-800' : 'text-gray-800 hover:bg-gray-200'}`}
+          >
+            <div className={`w-10 h-10 flex items-center justify-center rounded-lg ${isDarkMode ? 'bg-gray-700 text-blue-400' : 'bg-[#545554] text-[#5b8984]'}`}>
+              <BookOpen className="w-6 h-6" />
+            </div>
+            <span className="font-medium">Synthèse & Exploration Documentaire</span>
+          </a>
         </nav>
+
+          {/* Help button at the bottom */}
+          <div className="mt-auto p-4">
+            <Button asChild className={clsx(
+              'w-full text-base lg:text-lg',
+              isDarkMode ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-[#a0ddd8] hover:bg-[#8accc7] text-gray-800'
+            )}>
+              <Link to="/help" className="flex items-center justify-center gap-2">
+                <HelpCircle className="w-5 h-5" />
+                Aide
+              </Link>
+            </Button>
+          </div>
+        </div>
       </aside>
 
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="flex items-center justify-between p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}">
-          <button onClick={toggleSidebar} className="lg:hidden">
+        <header className={`flex items-center justify-between p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <button onClick={toggleSidebar} className="lg:hidden" aria-label="Ouvrir le menu" title="Ouvrir le menu">
             <Menu className="w-6 h-6" />
           </button>
           <div className="flex-1"></div> {/* This will push the theme toggle to the right */}
@@ -256,6 +278,8 @@ export const StitchDesign = (): JSX.Element => {
                 ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600' 
                 : 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
             }`}
+            aria-label="Basculer le thème"
+            title="Basculer le thème"
           >
             {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
@@ -276,8 +300,9 @@ export const StitchDesign = (): JSX.Element => {
               ))}
             </TabsList>
 
-            {[ 'extraction', 'generation', 'presentation' ].map(tab => {
-              const content = {
+            {[ 'extraction', 'generation', 'presentation' ].map(t => {
+              const tab = t as TabKey;
+              const content: Record<TabKey, { title: string; icon: JSX.Element; buttonLabel: string; resultLabel: string } > = {
                 extraction: {
                   title: 'Extraction de Données',
                   icon: <Upload className={`w-10 h-10 mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`} />,
@@ -332,9 +357,9 @@ export const StitchDesign = (): JSX.Element => {
                       <div className="w-4/5 mt-4">
                         <h4 className="text-lg font-bold mb-2">Fichiers téléversés:</h4>
                         <ul>
-                          {(tab === 'extraction' ? extractionFiles : tab === 'generation' ? generationFiles : presentationFiles).map(file => (
-                            <li key={file.path} className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                              {file.path} - {file.size} bytes
+                          {(tab === 'extraction' ? extractionFiles : tab === 'generation' ? generationFiles : presentationFiles).map((file) => (
+                            <li key={file.name} className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {file.name} - {file.size} bytes
                             </li>
                           ))}
                         </ul>
@@ -410,7 +435,7 @@ export const StitchDesign = (): JSX.Element => {
             })}
           </Tabs>
         </main>
-        <footer className="flex justify-center items-center w-full py-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}">
+        <footer className={`flex justify-center items-center w-full py-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
           <p
                     className={clsx(
                       'text-base lg:text-lg',
