@@ -99,7 +99,7 @@ export const Landing = (): JSX.Element => {
                   </div>
                   <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-3 transition-transform duration-300 hover:-translate-y-1">
                     <div className="inline-flex items-center gap-2 text-purple-300 mb-2 text-base lg:text-lg xl:text-xl">
-                      <Bot className="h-15 w-15 lg:h-16 lg:w-16 xl:h-17 xl:w-17" />
+                      <Bot className="h-15 w-15 lg:h-12 lg:w-12 xl:h-17 xl:w-17" />
                       Chatbot documentaire
                     </div>
                     <p className="text-gray-400 text-sm lg:text-base xl:text-lg">Questions/réponses alignées sur vos documents.</p>
