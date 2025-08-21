@@ -45,10 +45,10 @@ export const Landing = (): JSX.Element => {
                 <Sparkles className="h-4 w-4" />
                 Plate‑forme IA pour les documents
               </div>
-              <h1 className="mt-4 text-4xl sm:text-xl md:text-2xl lg:text-5xl xl:text-8xl font-bold tracking-tight">
+              <h1 className="mt-4 text-4xl sm:text-xl md:text-2xl lg:text-3xl xl:text-7xl font-bold tracking-tight">
                 Travaillez plus vite avec vos PDF, rapports et présentations
               </h1>
-              <p className="mt-3 text-base sm:text-lg md:text-xl lg:text-2xl lg:py-9 text-gray-300 leading-7 max-w-2xl">
+              <p className="mt-3 text-base sm:text-lg md:text-xl lg:text-xl lg:py-9 text-gray-300 leading-7 max-w-2xl">
                 Extrayez des tableaux, générez des rapports et des présentations, et interrogez vos fichiers avec un chatbot documentaire.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
