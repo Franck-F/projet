@@ -56,19 +56,19 @@ export const Landing = (): JSX.Element => {
                 <Button asChild className="lg:h-16 lg:w-64  px-6 bg-blue-600 hover:bg-blue-500 text-white text-base lg:text-lg">
                   <Link to="/app" className="inline-flex items-center gap-2">Commencer <ArrowRight className="h-8 w-8" /></Link>
                 </Button>
-                <Button asChild variant="outline" className="lg:h-16 lg:w-56 px-6 border-gray-700 bg-gray-900 hover:bg-gray-800 text-gray-200 text-base lg:text-lg xl:text-2xl">
+                <Button asChild variant="outline" className="lg:h-16 lg:w-56 px-6 border-gray-700 bg-gray-900 hover:bg-gray-800 text-gray-200 text-base lg:text-lg">
                   <Link to="/help">Documentation</Link>
                 </Button>
               </div>
               {/* Compact value props row */}
               <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-gray-300">
-                <span className="inline-flex items-center gap-2 rounded-[5vh] border border-gray-700 bg-gray-800/60 px-5 py-2 sm:text-base lg:h-12 lg:w-32 lg:text-base xl:text-xl">
+                <span className="inline-flex items-center gap-2 rounded-[5vh] border border-gray-700 bg-gray-800/60 px-5 py-2 sm:text-base lg:h-12 lg:w-32 lg:text-base">
                   <span className="h-5 w-5  rounded-full bg-blue-400" /> Rapide
                 </span>
-                <span className="inline-flex items-center gap-2 rounded-[5vh] border border-gray-700 bg-gray-800/60 px-5 py-2 sm:text-base lg:h-12 lg:w-32 lg:text-base xl:text-xl">
+                <span className="inline-flex items-center gap-2 rounded-[5vh] border border-gray-700 bg-gray-800/60 px-5 py-2 sm:text-base lg:h-12 lg:w-32 lg:text-base">
                   <span className="h-5 w-5 rounded-full bg-emerald-400" /> Précis
                 </span>
-                <span className="inline-flex items-center gap-2 rounded-[5vh] border border-gray-700 bg-gray-800/60 px-5 py-2 sm:text-base lg:h-12 lg:w-32 lg:text-base xl:text-xl">
+                <span className="inline-flex items-center gap-2 rounded-[5vh] border border-gray-700 bg-gray-800/60 px-5 py-2 sm:text-base lg:h-12 lg:w-32 lg:text-base">
                   <span className="h-5 w-5 rounded-full bg-purple-400" /> Simple
                 </span>
               </div>
