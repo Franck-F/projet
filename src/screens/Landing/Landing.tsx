@@ -19,16 +19,16 @@ export const Landing = (): JSX.Element => {
             <span className="inline-flex h-9 w-9 lg:h-10 lg:w-10 items-center justify-center rounded-lg bg-blue-600/20 text-blue-300">
               <Sparkles className="h-5 w-5 lg:h-6 lg:w-6" />
             </span>
-            <span className="text-lg lg:text-xl xl:text-2xl font-semibold tracking-tight">Votre Assistant Documentaire IA</span>
+            <span className="text-lg lg:text-xl font-semibold tracking-tight">Votre Assistant Documentaire IA</span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-gray-300">
-            <Link to="/help" className="hover:text-white transition-colors lg:text-xl xl:text-2xl">Aide</Link>
-            <a href="https://notebooklm.google.com/notebook/b935055c-463b-4fc4-b680-056da3cd341f" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-white transition-colors lg:text-xl xl:text-2xl">
+            <Link to="/help" className="hover:text-white transition-colors lg:text-xl ">Aide</Link>
+            <a href="https://notebooklm.google.com/notebook/b935055c-463b-4fc4-b680-056da3cd341f" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-white transition-colors lg:text-xl">
               <BookOpen className="h-4 w-4 lg:h-6 lg:w-6" />
               Synthèse documentaire
             </a>
             <Button asChild className="bg-blue-600 hover:bg-blue-500 text-white">
-              <Link to="/app" className="inline-flex items-center gap-2 lg:text-xl xl:text-2xl">
+              <Link to="/app" className="inline-flex items-center gap-2 lg:text-xl">
                 Commencer
                 <ArrowRight className="h-4 w-4 lg:h-4 lg:w-4" />
               </Link>
