@@ -42,18 +42,18 @@ export const Landing = (): JSX.Element => {
         <section className="w-4/5 h-full px-4 sm:px-6 py-10 sm:py-12 flex items-center mx-auto xl:h-full xl:w-4/5">
           <div className="w-full h-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center xl:w-full xl:h-full">
             <div className="lg:col-span-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-base sm:text-lg lg:text-xl xl:text-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-base sm:text-lg lg:text-xl">
                 <Sparkles className="h-4 w-4" />
                 Plate‑forme IA pour les documents
               </div>
-              <h1 className="mt-4 text-4xl sm:text-xl md:text-2xl lg:text-6xl xl:text-9xl font-bold tracking-tight">
+              <h1 className="mt-4 text-4xl sm:text-xl md:text-2xl lg:text-3xl xl:text-6xl font-bold tracking-tight">
                 Travaillez plus vite avec vos PDF, rapports et présentations
               </h1>
-              <p className="mt-3 text-base sm:text-lg md:text-xl lg:text-xl xl:text-2xl lg:py-9 text-gray-300 leading-7 max-w-2xl">
+              <p className="mt-3 text-base sm:text-lg md:text-xl lg:text-xl lg:py-9 text-gray-300 leading-7 max-w-2xl">
                 Extrayez des tableaux, générez des rapports et des présentations, et interrogez vos fichiers avec un chatbot documentaire.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Button asChild className="lg:h-16 lg:w-64  px-6 bg-blue-600 hover:bg-blue-500 text-white text-base lg:text-lg xl:text-2xl">
+                <Button asChild className="lg:h-16 lg:w-64  px-6 bg-blue-600 hover:bg-blue-500 text-white text-base lg:text-lg">
                   <Link to="/app" className="inline-flex items-center gap-2">Commencer <ArrowRight className="h-8 w-8" /></Link>
                 </Button>
                 <Button asChild variant="outline" className="lg:h-16 lg:w-56 px-6 border-gray-700 bg-gray-900 hover:bg-gray-800 text-gray-200 text-base lg:text-lg xl:text-2xl">
