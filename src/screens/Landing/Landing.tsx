@@ -1,11 +1,12 @@
 import React from "react";
+import "./Landing.css";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Sparkles, ArrowRight, FileSpreadsheet, FileText, Presentation, Bot, BookOpen } from "lucide-react";
 
 export const Landing = (): JSX.Element => {
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white flex flex-col xl:min-h-screen xl:h-screen xl:w-screen">
+    <div className="landing min-h-screen relative overflow-hidden bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white flex flex-col xl:min-h-screen xl:h-screen xl:w-screen">
       {/* Background decorations */}
       <div className="pointer-events-none absolute -top-40 -right-20 h-96 w-96 rounded-full bg-blue-600/10 blur-3xl animate-pulse" />
       <div className="pointer-events-none absolute -bottom-40 -left-20 h-[28rem] w-[28rem] rounded-full bg-cyan-500/10 blur-3xl animate-pulse" />
