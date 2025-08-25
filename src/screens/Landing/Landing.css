@@ -1,9 +1,32 @@
-@media (max-width: 1024px) {
-  .landing h1 {
-    font-size: 1.5rem;
-  }
+/* Video background styles */
+.landing {
+  position: relative;
+  overflow: hidden;
+}
 
-  .landing p {
-    font-size: 1rem;
-  }
+.video-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 0.3;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+/* Ensure content is above video and overlay */
+.landing > * {
+  position: relative;
+  z-index: 2;
 }

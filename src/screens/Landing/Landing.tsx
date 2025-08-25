@@ -1,5 +1,4 @@
 import React from "react";
-import "./Landing.css";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Sparkles, ArrowRight, FileSpreadsheet, FileText, Presentation, Bot, BookOpen } from "lucide-react";
@@ -120,6 +119,5 @@ export const Landing = (): JSX.Element => {
     </div>
   );
 };
-
 
 
