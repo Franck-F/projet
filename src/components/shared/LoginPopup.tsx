@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { X } from "lucide-react";
@@ -12,11 +13,16 @@ export const LoginPopup = ({ onClose, targetUrl }: LoginPopupProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email.endsWith("@bert-consultant.fr") && password === "@jrbc-#assistant") {
-      window.location.href = targetUrl;
+      if (targetUrl.startsWith("http")) {
+        window.location.href = targetUrl;
+      } else {
+        navigate(targetUrl);
+      }
     } else {
       setError("Email ou mot de passe incorrect.");
     }

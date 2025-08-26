@@ -36,8 +36,8 @@ export const Landing = (): JSX.Element => {
               <span className="text-lg lg:text-xl font-semibold tracking-tight">Votre Assistant Documentaire IA</span>
             </div>
             <nav className="hidden md:flex items-center gap-6 text-gray-300">
-              <Link to="/help" className="hover:text-white transition-colors lg:text-xl ">Aide</Link>
-              <Button onClick={() => openLoginPopup("https://notebooklm.google.com/notebook/b935055c-463b-4fc4-b680-056da3cd341f")} variant="outline" className="inline-flex items-center gap-2 border-gray-700 bg-gray-900 hover:bg-gray-400 text-gray-200 lg:text-xl">
+              <Button onClick={() => openLoginPopup("/help")} variant="outline" className="inline-flex items-center gap-2 border-gray-700 bg-gray-900 hover:bg-gray-500 text-gray-200 lg:text-xl">Aide</Button>
+              <Button onClick={() => openLoginPopup("https://notebooklm.google.com/notebook/b935055c-463b-4fc4-b680-056da3cd341f")} variant="outline" className="inline-flex items-center gap-2 border-gray-700 bg-gray-900 hover:bg-gray-500 text-gray-200 lg:text-xl">
                 <BookOpen className="h-4 w-4 lg:h-6 lg:w-6" />
                 Synthèse documentaire
               </Button>
@@ -66,9 +66,7 @@ export const Landing = (): JSX.Element => {
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <Button onClick={() => openLoginPopup("/app")} className="lg:h-16 lg:w-64  px-6 bg-blue-600 hover:bg-blue-500 text-white text-base lg:text-base inline-flex items-center gap-2">Commencer <ArrowRight className="h-8 w-8" /></Button>
-                  <Button asChild variant="outline" className="lg:h-16 lg:w-56 px-6 border-gray-700 bg-gray-900 hover:bg-gray-800 text-gray-200 text-base lg:text-base">
-                    <Link to="/help">Documentation</Link>
-                  </Button>
+                  <Button onClick={() => openLoginPopup("/help")} variant="outline" className="lg:h-16 lg:w-56 px-6 border-gray-700 bg-gray-900 hover:bg-gray-800 text-gray-200 text-base lg:text-base">Documentation</Button>
                 </div>
                 {/* Compact value props row */}
                 <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-gray-300">
