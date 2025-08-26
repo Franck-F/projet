@@ -43,4 +43,6 @@ Si vous êtes satisfait du résultat, vous pouvez enfin compiler le projet pour 
 ```
 npm run build
 ```
-Cela créera un dossier `dist` contenant l'application prête pour la production. Vous pouvez ensuite déployer ce dossier sur un serveur web ou
+Cela créera un dossier `dist` contenant l'application prête pour la production. Vous pouvez ensuite déployer ce dossier sur un serveur web.
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/b4923ec5-976a-4867-8302-7e965c20d1f6/deploy-status)](https://app.netlify.com/projects/jrbc-docs-assistant/deploys)
