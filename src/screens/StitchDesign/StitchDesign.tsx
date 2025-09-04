@@ -23,6 +23,7 @@ import {
   X,
   HelpCircle,
   BookOpen,
+  LoaderCircle,
 } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import clsx from "clsx"; // Import clsx
@@ -40,6 +41,8 @@ type OperationState = {
 export const StitchDesign = (): JSX.Element => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [popup, setPopup] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [uploading, setUploading] = useState<string | null>(null);
 
   const [extractionFiles, setExtractionFiles] = useState<File[]>([]);
   const [generationFiles, setGenerationFiles] = useState<File[]>([]);
@@ -166,7 +169,8 @@ export const StitchDesign = (): JSX.Element => {
   const rapportInputRef = React.useRef<HTMLInputElement>(null);
   const presentationInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = async (file: File, url: string) => {
+  const handleFileUpload = async (file: File, url: string, label: string) => {
+    setUploading(label);
     const formData = new FormData();
     formData.append("file", file);
     try {
@@ -175,25 +179,27 @@ export const StitchDesign = (): JSX.Element => {
           "Content-Type": "multipart/form-data",
         },
       });
-      // Here you could add a success notification
-      console.log(`File uploaded successfully to ${url}`);
+      setPopup({ message: "Modèle transmis avec succès!", type: 'success' });
     } catch (error) {
-      // Here you could add an error notification
+      setPopup({ message: "Erreur lors de la transmission du modèle.", type: 'error' });
       console.error(`Error uploading file to ${url}:`, error);
+    } finally {
+      setUploading(null);
+      setTimeout(() => setPopup(null), 3000);
     }
   };
 
   const onRapportFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      handleFileUpload(file, "https://n8n.srv856869.hstgr.cloud/webhook/template_rapport");
+      handleFileUpload(file, "https://n8n.srv856869.hstgr.cloud/webhook/template_rapport", "Ajouter un modèle de rapport");
     }
   };
 
   const onPresentationFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      handleFileUpload(file, "https://n8n.srv856869.hstgr.cloud/webhook/template_presentation");
+      handleFileUpload(file, "https://n8n.srv856869.hstgr.cloud/webhook/template_presentation", "Ajouter un modèle de présentation");
     }
   };
 
@@ -276,6 +282,13 @@ export const StitchDesign = (): JSX.Element => {
 
   return (
     <div className={`flex h-screen overflow-hidden ${themeClasses}`}>
+      {popup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className={`p-8 rounded-lg text-white ${popup.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
+            <p className="text-lg">{popup.message}</p>
+          </div>
+        </div>
+      )}
       {/* Help content is now served on /help route */}
       {/* Overlay for mobile --- Clicking it will close the sidebar */}
       {isSidebarOpen && (
@@ -362,6 +375,7 @@ export const StitchDesign = (): JSX.Element => {
                     ? "text-gray-100 hover:bg-gray-800"
                     : "text-gray-800 hover:bg-gray-200"
                 }`}
+                disabled={uploading === item.label}
               >
                 <div
                   className={`w-10 h-10 flex items-center justify-center rounded-lg ${
@@ -370,7 +384,11 @@ export const StitchDesign = (): JSX.Element => {
                       : "bg-[#545554] text-[#5b8984]"
                   }`}
                 >
-                  {item.icon}
+                  {uploading === item.label ? (
+                    <LoaderCircle className="w-6 h-6 animate-spin" />
+                  ) : (
+                    item.icon
+                  )}
                 </div>
                 <span className="font-medium">{item.label}</span>
               </button>
