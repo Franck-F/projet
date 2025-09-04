@@ -197,7 +197,7 @@ export const StitchDesign = (): JSX.Element => {
     }
   };
 
-  // Help page is now a dedicated route (/help). No internal modal state needed.
+  // route page Help (/help). No internal modal state needed.
 
   // Navigation menu items data
   const navItems = [
