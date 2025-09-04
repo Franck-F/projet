@@ -89,17 +89,17 @@ export const StitchDesign = (): JSX.Element => {
       case "extraction":
         files = extractionFiles;
         webhookUrl =
-          "https://n8n.srv856869.hstgr.cloud/webhook/c9b3deb8-2d60-40c3-9eb6-624961acde5e"; // Remplacez par le bon webhook
+          "https://n8n.srv856869.hstgr.cloud/webhook/c9b3deb8-2d60-40c3-9eb6-624961acde5e"; 
         break;
       case "generation":
         files = generationFiles;
         webhookUrl =
-          "https://n8n.srv856869.hstgr.cloud/webhook/generer-rapport"; // Remplacez par le bon webhook
+          "https://n8n.srv856869.hstgr.cloud/webhook/generer-rapport"; 
         break;
       case "presentation":
         files = presentationFiles;
         webhookUrl =
-          "https://n8n.srv856869.hstgr.cloud/webhook/generer_presentation"; // Remplacez par le bon webhook
+          "https://n8n.srv856869.hstgr.cloud/webhook/generer_presentation"; 
         break;
       default:
         return;
@@ -161,6 +161,40 @@ export const StitchDesign = (): JSX.Element => {
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const rapportInputRef = React.useRef<HTMLInputElement>(null);
+  const presentationInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (file: File, url: string) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      await axios.post(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      // Here you could add a success notification
+      console.log(`File uploaded successfully to ${url}`);
+    } catch (error) {
+      // Here you could add an error notification
+      console.error(`Error uploading file to ${url}:`, error);
+    }
+  };
+
+  const onRapportFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleFileUpload(file, "https://n8n.srv856869.hstgr.cloud/webhook/template_rapport");
+    }
+  };
+
+  const onPresentationFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleFileUpload(file, "https://n8n.srv856869.hstgr.cloud/webhook/template_presentation");
+    }
   };
 
   // Help page is now a dedicated route (/help). No internal modal state needed.
@@ -258,6 +292,18 @@ export const StitchDesign = (): JSX.Element => {
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } ${sidebarThemeClasses}`}
       >
+        <input
+          type="file"
+          ref={rapportInputRef}
+          onChange={onRapportFileSelect}
+          style={{ display: "none" }}
+        />
+        <input
+          type="file"
+          ref={presentationInputRef}
+          onChange={onPresentationFileSelect}
+          style={{ display: "none" }}
+        />
         <div className="flex flex-col h-full">
           <div className="flex justify-between items-center p-4 lg:hidden">
             <h2 className="text-lg font-bold">Menu</h2>
@@ -302,9 +348,15 @@ export const StitchDesign = (): JSX.Element => {
             className={`flex flex-col p-4 ${isDarkMode ? "bg-gray-800" : ""}`}
           >
             {navItems.map((item) => (
-              <a
-                href="#"
+              <button
                 key={item.label}
+                onClick={() => {
+                  if (item.label === "Ajouter un modèle de rapport") {
+                    rapportInputRef.current?.click();
+                  } else if (item.label === "Ajouter un modèle de présentation") {
+                    presentationInputRef.current?.click();
+                  }
+                }}
                 className={`flex items-center gap-4 p-3 rounded-lg transition-colors duration-300 text-base lg:text-lg ${
                   isDarkMode
                     ? "text-gray-100 hover:bg-gray-800"
@@ -321,7 +373,7 @@ export const StitchDesign = (): JSX.Element => {
                   {item.icon}
                 </div>
                 <span className="font-medium">{item.label}</span>
-              </a>
+              </button>
             ))}
 
             <a
@@ -693,7 +745,7 @@ export const StitchDesign = (): JSX.Element => {
               isDarkMode ? "text-gray-400" : "text-gray-500"
             )}
           >
-            Copyright - JRBC 2025 All rights reserved
+            © {new Date().getFullYear()} — Plate‑forme documentaire IA - JRBC
           </p>
         </footer>
       </div>

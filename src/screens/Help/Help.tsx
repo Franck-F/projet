@@ -40,7 +40,7 @@ const FaqItem = ({ question, answer, icon: Icon }) => {
       </button>
       {isOpen && (
         <div className="px-6 pb-4 text-gray-300 text-base lg:text-lg">
-          {answer}
+          {answer} 
         </div>
       )}
     </div>
@@ -64,13 +64,13 @@ export const Help = (): JSX.Element => {
     {
       question: "Quels types de rapports puis-je générer ?",
       answer:
-        "L'application peut générer des rapports détaillés à partir des données extraites des fichiers Excel. L'IA analyse les données et s'appuie sur des modèles prédéfinis pour créer un rapport structuré et complet au format PDF.",
+        "L'application peut générer des rapports détaillés à partir des données provenant des fichiers Excel. L'IA analyse les données et s'appuie sur des modèles prédéfinis pour créer un rapport structuré et complet au format docx.",
       icon: FileText,
     },
     {
       question: "Comment fonctionne la génération de présentations ?",
       answer:
-        "Après avoir généré un rapport, l'application peut automatiquement créer une présentation PowerPoint (.pptx). Elle synthétise les points clés du rapport et les présente de manière claire et concise.",
+        "A partir du rapport généré, l'application peut automatiquement créer une présentation PowerPoint (.pptx). Elle synthétise les points clés du rapport et les présente de manière claire et concise.",
       icon: Presentation,
     },
     {
