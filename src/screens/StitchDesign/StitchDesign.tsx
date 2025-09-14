@@ -97,7 +97,7 @@ export const StitchDesign = (): JSX.Element => {
       case "generation":
         files = generationFiles;
         webhookUrl =
-          "https://n8n.srv856869.hstgr.cloud/webhook/generer-rapport"; 
+          "https://n8n.srv856869.hstgr.cloud/webhook/80708203-bab3-441e-b084-ffae1f47d264"; 
         break;
       case "presentation":
         files = presentationFiles;
