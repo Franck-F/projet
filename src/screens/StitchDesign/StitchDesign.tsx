@@ -97,12 +97,12 @@ export const StitchDesign = (): JSX.Element => {
       case "generation":
         files = generationFiles;
         webhookUrl =
-          "https://n8n.srv856869.hstgr.cloud/webhook/generation_rapport"; 
+          "https://n8n.srv856869.hstgr.cloud/webhook/generer-rapport"; 
         break;
       case "presentation":
         files = presentationFiles;
         webhookUrl =
-          "https://n8n.srv856869.hstgr.cloud/webhook/generation_presentation"; 
+          "https://n8n.srv856869.hstgr.cloud/webhook/generer_presentation"; 
         break;
       default:
         return;
